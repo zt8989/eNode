@@ -1,5 +1,5 @@
 var assert = require("assert"),
-	DynamicBuffer = require('../src/dynamic-buffer.js');
+	DynamicBuffer = require('../src/dynamic-buffer');
 
 describe('DynamicBuffer', function() {
 

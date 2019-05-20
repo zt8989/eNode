@@ -1,9 +1,9 @@
 var log = require('tinylogger')
-var crypt = require('./crypt.js')
-var misc = require('./misc.js')
-var conf = require('../enode.config.js')
+var crypt = require('./crypt')
+var misc = require('./misc')
+var conf = require('../enode.config')
 var fs = require('fs')
-require('./buffer.js')
+require('./buffer')
 
 var MAGICVALUE_UDP_SERVERCLIENT = 0xA5
 var MAGICVALUE_UDP_CLIENTSERVER = 0x6B

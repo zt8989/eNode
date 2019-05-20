@@ -1,13 +1,13 @@
-require('./ed2k-globals.js');
+require('./ed2k-globals');
 
-var	Ed2kMessage = require('./ed2k-message.js'),
+var	Ed2kMessage = require('./ed2k-message'),
 	log = require('tinylogger'),
 	hexDump = require('hexy').hexy,
-	config = require('../enode.config.js'),
+	config = require('../enode.config'),
 	zlib = require('zlib'),
-	helpers = require('./helpers.js'),
-	Storage = require('./storage-' + config.storage.engine + '.js'),
-	Ed2kFile = require('./ed2k-file.js');
+	helpers = require('./helpers'),
+	Storage = require('./storage-' + config.storage.engine + ''),
+	Ed2kFile = require('./ed2k-file');
 
 var operations = [],
 	responses = [];

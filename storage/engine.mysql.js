@@ -1,7 +1,7 @@
 var mysql = require('mysql') // https://github.com/felixge/node-mysql
 var log = require('tinylogger')
-var misc = require('../ed2k/misc.js')
-var conf = require('../enode.config.js').storage.mysql
+var misc = require('../ed2k/misc')
+var conf = require('../enode.config').storage.mysql
 
 var sql = {
 

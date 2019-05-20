@@ -1,19 +1,19 @@
-var config = require('../enode.config.js').storage,
-	Ed2kFile = require('../src/ed2k-file.js'),
-	Ed2kClient = require('../src/ed2k-client.js'),
-	crypt = require('../src/crypt.js'),
+var config = require('../enode.config').storage,
+	Ed2kFile = require('../src/ed2k-file'),
+	Ed2kClient = require('../src/ed2k-client'),
+	crypt = require('../src/crypt'),
 	assert = require('assert'),
 	util = require('util'),
 	async = require('async'),
 	log = require('tinylogger').disable(),
-	Mother = require('./mother.js');
+	Mother = require('./mother');
 
 // first change the config for testing
 config.engine = 'mongodb';
 config.mongodb.database = 'enode_testing';
 config.returnSourcesLimit = 256;
 
-var Storage = require('../src/storage-mongodb.js');
+var Storage = require('../src/storage-mongodb');
 
 describe('Storage.files', function() {
 

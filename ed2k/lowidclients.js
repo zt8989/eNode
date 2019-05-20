@@ -1,4 +1,4 @@
-var conf = require('../enode.config.js');
+var conf = require('../enode.config');
 
 var lowIdClients = {
 

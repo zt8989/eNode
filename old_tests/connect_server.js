@@ -1,11 +1,11 @@
 var net = require('net');
 var log = require('tinylogger');
-var misc = require('../ed2k/misc.js');
-var Packet = require('../ed2k/packet.js').Packet;
-var conf = require('../enode.config.js');
-var lowIdClients = require('../ed2k/lowidclients.js').lowIdClients;
+var misc = require('../ed2k/misc');
+var Packet = require('../ed2k/packet').Packet;
+var conf = require('../enode.config');
+var lowIdClients = require('../ed2k/lowidclients').lowIdClients;
 var hexDump = require('hexy').hexy;
-require('../ed2k/globals.js');
+require('../ed2k/globals');
 var zlib = require('zlib');
 
 var connection = {

@@ -1,9 +1,9 @@
 var net = require('net')
-var conf = require('../enode.config.js')
-var Packet = require('./packet.js').Packet
-var misc = require('./misc.js')
+var conf = require('../enode.config')
+var Packet = require('./packet').Packet
+var misc = require('./misc')
 var log = require('tinylogger')
-var crypt = require('./crypt.js')
+var crypt = require('./crypt')
 var events = require('events')
 var util = require('util')
 

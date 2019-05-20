@@ -1,7 +1,7 @@
-require('./ed2k-globals.js');
+require('./ed2k-globals');
 
 var util = require('util'),
-	DynamicBuffer = require('./dynamic-buffer.js'),
+	DynamicBuffer = require('./dynamic-buffer'),
 	hexDump = require('hexy').hexy,
 	log = require('tinylogger');
 

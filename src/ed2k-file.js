@@ -1,4 +1,4 @@
-var	Ed2kMessage = require('./ed2k-message.js');
+var	Ed2kMessage = require('./ed2k-message');
 
 var Ed2kFile = function() {
 	this.hash = null; // 16 bytes buffer

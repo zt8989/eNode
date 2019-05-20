@@ -3,8 +3,8 @@
  */
 
 var log = require('tinylogger')
-var misc = require('../ed2k/misc.js')
-var conf = require('../enode.config.js').storage.dummy
+var misc = require('../ed2k/misc')
+var conf = require('../enode.config').storage.dummy
 
 exports.init = function(callback) {
   log.info('Dummy Engine init')

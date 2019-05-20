@@ -1,5 +1,5 @@
 var util = require('util'),
-	Ed2kMessage = require('./ed2k-message.js'),
+	Ed2kMessage = require('./ed2k-message'),
 	log = require('tinylogger'),
 	hexDump = require('hexy').hexy;
 

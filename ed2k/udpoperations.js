@@ -1,11 +1,11 @@
-var db = require('../storage/storage.js')
+var db = require('../storage/storage')
 var hexDump = require('hexy').hexy
-var misc = require('./misc.js')
-var Packet = require('./packet.js').Packet
+var misc = require('./misc')
+var Packet = require('./packet').Packet
 var log = require('tinylogger')
-var lowIdClients = require('./lowidclients.js').lowIdClients
-var conf = require('../enode.config.js')
-require('./buffer.js')
+var lowIdClients = require('./lowidclients').lowIdClients
+var conf = require('../enode.config')
+require('./buffer')
 
 var sendError = function(err) {
   if (err) { log.error(err) }

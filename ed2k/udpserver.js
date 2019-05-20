@@ -1,9 +1,9 @@
 var dgram = require('dgram')
-var conf = require('../enode.config.js')
+var conf = require('../enode.config')
 var log = require('tinylogger')
-var op = require('./udpoperations.js')
-var udpCrypt = require('./udpcrypt.js').udpCrypt
-var misc = require('./misc.js')
+var op = require('./udpoperations')
+var udpCrypt = require('./udpcrypt').udpCrypt
+var misc = require('./misc')
 
 exports.run = function(enableCrypt, port) {
 

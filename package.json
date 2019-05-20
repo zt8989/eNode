@@ -8,10 +8,12 @@
     "test": "test"
   },
   "dependencies": {
+    "@types/node": "^12.0.2",
     "async": "^3.0.0",
     "hexy": "^0.3.0",
     "mongodb": "^3.2.5",
-    "tinylogger": "^0.1.31"
+    "tinylogger": "^0.1.31",
+    "typescript": "^3.4.5"
   },
   "devDependencies": {},
   "scripts": {

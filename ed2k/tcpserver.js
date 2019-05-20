@@ -1,13 +1,13 @@
 var net = require('net')
 var log = require('tinylogger')
-var db = require('../storage/storage.js')
-var misc = require('./misc.js')
-var crypt = require('./crypt.js')
-var Packet = require('./packet.js').Packet
-var TcpCrypt = require('./tcpcrypt.js').TcpCrypt
-var conf = require('../enode.config.js')
-var lowIdClients = require('./lowidclients.js').lowIdClients
-var op = require('./tcpoperations.js')
+var db = require('../storage/storage')
+var misc = require('./misc')
+var crypt = require('./crypt')
+var Packet = require('./packet').Packet
+var TcpCrypt = require('./tcpcrypt').TcpCrypt
+var conf = require('../enode.config')
+var lowIdClients = require('./lowidclients').lowIdClients
+var op = require('./tcpoperations')
 
 exports.run = function(enableCrypt, port, callback) {
 

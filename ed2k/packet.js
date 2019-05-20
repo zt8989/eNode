@@ -1,13 +1,14 @@
 var log = require('tinylogger');
 var hexDump = require('hexy').hexy;
-var conf = require('../enode.config.js');
+var conf = require('../enode.config');
+var tagsLength = require('../ed2k/buffer').tagsLength
 
 global.PS_NEW         = 1;
 global.PS_READY       = 2;
 global.PS_WAITING_DATA    = 3;
 global.PS_CRYPT_NEGOTIATING = 4;
 
-require('./buffer.js');
+require('./buffer');
 
 var Packet = function(client) {
   this.protocol = 0;
@@ -30,7 +31,7 @@ Packet.make = function(protocol, items) {
       case TYPE_UINT32: size+= 4; break;
       case TYPE_STRING: size+= 2 + Buffer.byteLength(v[1]); break;
       case TYPE_HASH  : size+= 16; break;
-      case TYPE_TAGS  : size+= Buffer.tagsLength(v[1]); break;
+      case TYPE_TAGS  : size+= tagsLength(v[1]); break;
     }
   });
   var buf = new Buffer(5 + size);

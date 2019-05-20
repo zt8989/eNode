@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-require('./ed2k/globals.js');
+require('./ed2k/globals');
 
-var ed2kTCPServer = require('./ed2k/tcpserver.js');
-var ed2kUDPServer = require('./ed2k/udpserver.js');
-var storage       = require('./storage/storage.js');
-var conf          = require('./enode.config.js');
+var ed2kTCPServer = require('./ed2k/tcpserver');
+var ed2kUDPServer = require('./ed2k/udpserver');
+var storage       = require('./storage/storage');
+var conf          = require('./enode.config');
 
 storage.init(function(){
 

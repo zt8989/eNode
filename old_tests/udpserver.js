@@ -4,8 +4,8 @@ var hex = require('hexy').hexy;
 
 var udp = dgram.createSocket('udp4');
 
-require('../ed2k/globals.js');
-var Packet = require('../ed2k/packet.js').Packet;
+require('../ed2k/globals');
+var Packet = require('../ed2k/packet').Packet;
 
 var port = 5559;
 var ip = '192.168.3.109';

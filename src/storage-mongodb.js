@@ -1,6 +1,6 @@
-require('./ed2k-globals.js');
+require('./ed2k-globals');
 
-var	config = require('../enode.config.js').storage,
+var	config = require('../enode.config').storage,
 	MongoClient = require('mongodb').MongoClient,
 	log = require('tinylogger'),
 	async = require('async'),

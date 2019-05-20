@@ -1,14 +1,14 @@
-require('./ed2k-globals.js');
+require('./ed2k-globals');
 
-var config = require('../enode.config.js'),
+var config = require('../enode.config'),
 	net = require('net'),
 	log = require('tinylogger'),
-	Ed2kMessage = require('./ed2k-message.js'),
-	Ed2kTcpStream = require('./ed2k-tcp-stream.js'),
-	Ed2kTcpOperations = require('./ed2k-tcp-operations.js'),
-	Ed2kClient = require('./ed2k-client.js'),
-	Storage = require('./storage-' + config.storage.engine + '.js'), // remove this when no longer needed!
-	crypt = require('./crypt.js'),
+	Ed2kMessage = require('./ed2k-message'),
+	Ed2kTcpStream = require('./ed2k-tcp-stream'),
+	Ed2kTcpOperations = require('./ed2k-tcp-operations'),
+	Ed2kClient = require('./ed2k-client'),
+	Storage = require('./storage-' + config.storage.engine + ''), // remove this when no longer needed!
+	crypt = require('./crypt'),
 	hexDump = require('hexy').hexy,
 	async = require('async')
 

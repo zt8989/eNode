@@ -1,93 +1,96 @@
+import { TYPE_STRING, TYPE_UINT8, TYPE_UINT16, TYPE_UINT32, TAG_NAME, TAG_SIZE, TAG_SIZE_HI, TAG_TYPE, TAG_FORMAT, TAG_VERSION, TAG_PORT, TAG_SOURCES, TAG_MULEVERSION, TAG_FLAGS, TAG_RATING, TAG_MEDIA_ARTIST, TAG_MEDIA_ALBUM, TAG_MEDIA_TITLE, TAG_MEDIA_LENGTH, TAG_MEDIA_BITRATE, TAG_MEDIA_CODEC, TAG_SEARCHTREE, TAG_EMULE_UDPPORTS, TAG_EMULE_OPTIONS1, TAG_EMULE_OPTIONS2, VAL_PARTIAL_ID, VAL_PARTIAL_PORT, VAL_COMPLETE_ID, VAL_COMPLETE_PORT } from "./op";
+import { FileType } from "./bean/File";
+
 var log = require('tinylogger')
-var conf = require('../enode.config.js')
+var conf = require('../enode.config')
+
 
 Buffer.prototype._pointer = 0
 
-Buffer.prototype.pos = function(pos) {
-  if (pos == undefined) {
-    return this._pointer
-  }
-  else {
+Buffer.prototype.pos = function (pos?: number): any {
+  if(typeof pos === "number"){
     this._pointer = pos
     if (this._pointer > this.length) { this._pointer = this.length }
     return this
+  } else {
+    return this._pointer
   }
 }
 
-Buffer.prototype.getUInt8 = function() {
-  var r = this.readUInt8(this._pointer, conf.noAssert)
+Buffer.prototype.getUInt8 = function () {
+  var r = this.readUInt8(this._pointer)
   this._pointer++
   return r
 }
 
-Buffer.prototype.putUInt8 = function(n) {
-  this.writeUInt8(n, this._pointer, conf.noAssert)
+Buffer.prototype.putUInt8 = function (value) {
+  this.writeUInt8(value, this._pointer)
   this._pointer++
   return this
 }
 
-Buffer.prototype.getUInt16LE = function() {
-  var r = this.readUInt16LE(this._pointer, conf.noAssert)
-  this._pointer+= 2
+Buffer.prototype.getUInt16LE = function () {
+  var r = this.readUInt16LE(this._pointer)
+  this._pointer += 2
   return r
 }
 
-Buffer.prototype.putUInt16LE = function(n) {
-  this.writeUInt16LE(n, this._pointer, conf.noAssert)
-  this._pointer+= 2
+Buffer.prototype.putUInt16LE = function (n) {
+  this.writeUInt16LE(n, this._pointer)
+  this._pointer += 2
   return this
 }
 
-Buffer.prototype.getUInt32LE = function() {
-  var r = this.readUInt32LE(this._pointer, conf.noAssert)
-  this._pointer+= 4
+Buffer.prototype.getUInt32LE = function () {
+  var r = this.readUInt32LE(this._pointer)
+  this._pointer += 4
   return r
 }
 
-Buffer.prototype.getUInt64LE = function() {
-  var lo = this.readUInt32LE(this._pointer, conf.noAssert)
-  var hi = this.readUInt32LE(this._pointer+4, conf.noAssert)
-  this._pointer+= 8
+Buffer.prototype.getUInt64LE = function () {
+  var lo = this.readUInt32LE(this._pointer)
+  var hi = this.readUInt32LE(this._pointer + 4)
+  this._pointer += 8
   return lo + (hi * 0x100000000)
 }
 
-Buffer.prototype.putUInt32LE = function(n) {
-  this.writeUInt32LE(n, this._pointer, conf.noAssert)
-  this._pointer+= 4
+Buffer.prototype.putUInt32LE = function (value: number) {
+  this.writeUInt32LE(value, this._pointer)
+  this._pointer += 4
   return this
 }
 
-Buffer.prototype.getString = function(length) {
-  if (arguments.length == 0) { var length = this.getUInt16LE()   }
+Buffer.prototype.getString = function (length?: number) {
+  if (arguments.length == 0) { length = this.getUInt16LE() }
   return this.get(length).toString()
 }
 
-Buffer.prototype.putString = function(str) {
+Buffer.prototype.putString = function (str) {
   var len = Buffer.byteLength(str)
   this.putUInt16LE(len)
-  this.write(str, this._pointer, conf.noAssert)
-  this._pointer+= len
+  this.write(str, this._pointer)
+  this._pointer += len
   return this
 }
 
-Buffer.prototype.putBuffer = function(buffer) {
+Buffer.prototype.putBuffer = function (buffer) {
   buffer.copy(this, this._pointer)
-  this._pointer+= buffer.length
-  if (this._pointer > this.length) { this._pointer = this.length   }
+  this._pointer += buffer.length
+  if (this._pointer > this.length) { this._pointer = this.length }
   return this
 }
 
-Buffer.prototype.putHash = function(hash) {
+Buffer.prototype.putHash = function (hash) {
   if ((hash instanceof Buffer) && (hash.length == 16)) {
     this.putBuffer(hash)
   }
   else {
-    log.error('putHash: Unsupported input. Type: '+(typeof hash)+' Length: '+hash.length)
+    log.error('putHash: Unsupported input. Type: ' + (typeof hash) + ' Length: ' + hash.length)
   }
   return this
 }
 
-Buffer.prototype.get = function(len) {
+Buffer.prototype.get = function (len) {
   if (len == 0) return
   if (len == undefined) {
     var r = this.slice(this._pointer, this.length)
@@ -105,34 +108,34 @@ Buffer.prototype.get = function(len) {
 
 // tags = array of array(type, code, data)
 
-Buffer.tagsLength = function(tags) {
+export const tagsLength = function (tags: any) {
   var len = 4   // tags count <u32>
   var tagsCount = tags.length
-  for (var i=0; i<tagsCount; i++) {
-    len+= 4   // tag header (t[0] type <u8>).(length <u16>).(t[1] code<u8>)
+  for (var i = 0; i < tagsCount; i++) {
+    len += 4   // tag header (t[0] type <u8>).(length <u16>).(t[1] code<u8>)
     var t = tags[i]
     //log.trace(t)
     switch (t[0]) {
       case TYPE_STRING:
-        len+= 2+Buffer.byteLength(t[2])
+        len += 2 + Buffer.byteLength(t[2])
         break
       case TYPE_UINT8:
-        len+= 1
+        len += 1
         break
       case TYPE_UINT16:
-        len+= 2
+        len += 2
         break
       case TYPE_UINT32:
-        len+= 4
+        len += 4
         break
-      default: log.error('Buffer.tagsLength: Unhandled tag type: 0x'+t[0].toString(16))
+      default: log.error('Buffer.tagsLength: Unhandled tag type: 0x' + t[0].toString(16))
     }
   }
   return len
 }
 
 // tag = array(type, code, data)
-Buffer.prototype.putTag = function(tag) {
+Buffer.prototype.putTag = function (tag) {
   this.putUInt8(tag[0]).putUInt16LE(1).putUInt8(tag[1])   // (type).(length=1).(code)
   switch (tag[0]) { // data
     case TYPE_STRING:
@@ -147,20 +150,21 @@ Buffer.prototype.putTag = function(tag) {
     case TYPE_UINT32:
       this.putUInt32LE(tag[2])
       break
-    default: log.error('Buffer.putTag: Unhandled tag type: 0x'+tag[0].toString(16))
+    default: log.error('Buffer.putTag: Unhandled tag type: 0x' + tag[0].toString(16))
   }
 }
 
-Buffer.prototype.putTags = function(tags) {
+Buffer.prototype.putTags = function (tags) {
   var count = tags.length
   this.putUInt32LE(count)
-  for (var i=0; i<count; i++) {
+  for (var i = 0; i < count; i++) {
     this.putTag(tags[i])
   }
   return this
 }
 
-Buffer.prototype.getTagValue = function(type) {
+Buffer.prototype.getTagValue = function (type) {
+  let value
   switch (type) {
     case TYPE_STRING:
       value = this.getString()
@@ -176,13 +180,13 @@ Buffer.prototype.getTagValue = function(type) {
       break
     default:
       value = false
-      log.error('Unknown tag type: 0x'+type.toString(16))
+      log.error('Unknown tag type: 0x' + type.toString(16))
   }
   //log.trace('TAG: type: '+type+' value: '+value)
   return value
 }
 
-Buffer.prototype.getTag = function() {
+Buffer.prototype.getTag = function () {
   var type = this.getUInt8()
   if (type & 0x80) { // Lugdunum extended tag
     var code = this.getUInt8()
@@ -190,8 +194,8 @@ Buffer.prototype.getTag = function() {
     if (type >= 0x10) {
       var length = type - 0x10
       type = TYPE_STRING
-      this.pos(this.pos()-2)
-      this.writeUInt16LE(length, this.pos(), conf.noAssert)
+      this.pos(this.pos() - 2)
+      this.writeUInt16LE(length, this.pos())
     } // else handle it as a regular ed2k tag with given 'code' and 'type'
   }
   else {
@@ -200,11 +204,11 @@ Buffer.prototype.getTag = function() {
       var code = this.getUInt8()
     }
     else { // emule tag
-      log.warn('Unhandled tag. Length: '+length.toString(16))
+      log.warn('Unhandled tag. Length: ' + length.toString(16))
       return false
     }
   }
-  var tag = false
+  var tag: any = false
   switch (code) {
     case TAG_NAME:
       tag = ['name', this.getTagValue(type)]
@@ -270,36 +274,34 @@ Buffer.prototype.getTag = function() {
       tag = ['options2', this.getTagValue(type)]
       break
     default:
-      tag = ['0x'+code.toString(16), this.getTagValue(type)]
+      tag = ['0x' + code.toString(16), this.getTagValue(type)]
   }
   return tag
 }
 
-Buffer.prototype.getTags = function() {
+Buffer.prototype.getTags = function () {
   var count = this.getUInt32LE()
-  var tags = []
+  var tags: any[] = []
   while (count--) {
     var tag = this.getTag()
-    if (tag === false) return ['TAGERROR',true]
+    if (tag === false) return ['TAGERROR', true]
     tags.push(tag)
   }
   return tags
 }
 
-Buffer.prototype.getFileList = function(callback) {
+Buffer.prototype.getFileList = function (callback) {
   //log.debug('Buffer.getFileList')
   var count = this.getUInt32LE()
-  for (var i=0; i<count; i++) {
-    var file = {
+  for (var i = 0; i < count; i++) {
+    var file: FileType = {
       'hash': this.get(16),
       'complete': 1, // let's suppose it's completed by default
+      size: 0
     }
     var id = this.getUInt32LE()
     var port = this.getUInt16LE()
-    this.getTags(function(tag) {
-      //log.trace(tag)
-      file[tag[0]] = tag[1]
-    })
+    this.getTags()
     if ((id == VAL_PARTIAL_ID) && (port == VAL_PARTIAL_PORT)) {
       file.complete = 0
     }
@@ -308,7 +310,7 @@ Buffer.prototype.getFileList = function(callback) {
     }
     file.sizeLo = file.size
     if (file.sizehi) {
-      file.size+= file.sizehi * 0x100000000
+      file.size += file.sizehi * 0x100000000
     }
     else file.sizehi = 0
     if (callback) callback(file)

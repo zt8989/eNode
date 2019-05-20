@@ -1,8 +1,8 @@
-require('../src/ed2k-globals.js');
+require('../src/ed2k-globals');
 
-var Ed2kFile = require('../src/ed2k-file.js'),
-	Ed2kClient = require('../src/ed2k-client.js'),
-	crypt = require('../src/crypt.js');
+var Ed2kFile = require('../src/ed2k-file'),
+	Ed2kClient = require('../src/ed2k-client'),
+	crypt = require('../src/crypt');
 
 var Mother = {
 

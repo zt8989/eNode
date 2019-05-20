@@ -1,7 +1,7 @@
-require('./ed2k-globals.js');
+require('./ed2k-globals');
 
 var util = require('util'),
-	helpers = require('./helpers.js');
+	helpers = require('./helpers');
 
 /**
  * Client info

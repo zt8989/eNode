@@ -1,13 +1,13 @@
-var conf = require('../enode.config.js')
+var conf = require('../enode.config')
 var log = require('tinylogger')
-var db = require('../storage/storage.js')
+var db = require('../storage/storage')
 var net = require('net')
-var lowIdClients = require('./lowidclients.js').lowIdClients
-var Packet = require('./packet.js').Packet
+var lowIdClients = require('./lowidclients').lowIdClients
+var Packet = require('./packet').Packet
 var zlib = require('zlib')
-var misc = require('./misc.js')
-var crypt = require('./crypt.js')
-var eD2KClient = require('./client.js').Client
+var misc = require('./misc')
+var crypt = require('./crypt')
+var eD2KClient = require('./client').Client
 
 /**
  * Checks if a client is firewalled
