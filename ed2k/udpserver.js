@@ -1,5 +1,5 @@
 var dgram = require('dgram')
-var conf = require('../enode.config.js').config
+var conf = require('../enode.config.js')
 var log = require('tinylogger')
 var op = require('./udpoperations.js')
 var udpCrypt = require('./udpcrypt.js').udpCrypt

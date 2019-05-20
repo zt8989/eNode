@@ -5,7 +5,7 @@ var misc = require('./misc.js')
 var crypt = require('./crypt.js')
 var Packet = require('./packet.js').Packet
 var TcpCrypt = require('./tcpcrypt.js').TcpCrypt
-var conf = require('../enode.config.js').config
+var conf = require('../enode.config.js')
 var lowIdClients = require('./lowidclients.js').lowIdClients
 var op = require('./tcpoperations.js')
 

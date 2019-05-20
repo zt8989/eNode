@@ -1,7 +1,7 @@
 var log = require('tinylogger')
 var crypt = require('./crypt.js')
 var misc = require('./misc.js')
-var conf = require('../enode.config.js').config
+var conf = require('../enode.config.js')
 var fs = require('fs')
 require('./buffer.js')
 

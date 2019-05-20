@@ -1,4 +1,4 @@
-var conf = require('../enode.config.js').config
+var conf = require('../enode.config.js')
 var log = require('tinylogger')
 var db = require('../storage/storage.js')
 var net = require('net')

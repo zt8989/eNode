@@ -2,7 +2,7 @@ module.exports = {
 
 	name: 'eNode Server (TESTING)',
 	description: 'eNode: experimental ed2k server written in node.js',
-	address: '192.168.1.2',
+	address: '0.0.0.0',
 	dynIp: '',
 
 	versionString: 'v0.04',
@@ -49,6 +49,8 @@ module.exports = {
 			host: 'localhost',
 			port: 27017,
 			log: true,
+			passwd: 'toor',
+			user: 'root'
 		}
 	},
 

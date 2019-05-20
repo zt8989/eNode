@@ -1,6 +1,6 @@
 var log = require('tinylogger');
 var hexDump = require('hexy').hexy;
-var conf = require('../enode.config.js').config;
+var conf = require('../enode.config.js');
 
 global.PS_NEW         = 1;
 global.PS_READY       = 2;

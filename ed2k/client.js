@@ -1,5 +1,5 @@
 var net = require('net')
-var conf = require('../enode.config.js').config
+var conf = require('../enode.config.js')
 var Packet = require('./packet.js').Packet
 var misc = require('./misc.js')
 var log = require('tinylogger')

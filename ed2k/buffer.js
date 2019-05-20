@@ -1,5 +1,5 @@
 var log = require('tinylogger')
-var conf = require('../enode.config.js').config
+var conf = require('../enode.config.js')
 
 Buffer.prototype._pointer = 0
 

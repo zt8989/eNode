@@ -4,7 +4,7 @@ var misc = require('./misc.js')
 var Packet = require('./packet.js').Packet
 var log = require('tinylogger')
 var lowIdClients = require('./lowidclients.js').lowIdClients
-var conf = require('../enode.config.js').config
+var conf = require('../enode.config.js')
 require('./buffer.js')
 
 var sendError = function(err) {

@@ -1,4 +1,4 @@
-var conf = require('../enode.config.js').config
+var conf = require('../enode.config.js')
 var engine = require('./engine.'+conf.storage.engine+'.js')
 
 exports.init = engine.init

@@ -1,4 +1,4 @@
-var mongo = require('mongodb')
+var MongoClient = require('mongodb').MongoClient;
 var log = require('tinylogger')
 var misc = require('../ed2k/misc.js')
 var conf = require('../enode.config.js').storage.mongodb
@@ -44,17 +44,18 @@ var mongoErr = function(err) {
 exports.init = function(callback) {
   log.info('MongoDB init...')
 
-  var db = new mongo.Db(
-    conf.database,
-    new mongo.Server(conf.host, conf.port, {}),
-    dbOptions
-  )
+  const url = `mongodb://${conf.user}:${conf.passwd}@${conf.host}:${conf.port}`;
 
-  db.open(function(err, db) {
+  const client = new MongoClient(url)
+
+  client.connect(function(err) {
     if (err) {
       log.panic('MongoDB init: Cannot connect to database. '+err)
       process.exit()
     }
+    
+    const db = client.db(conf.database);
+
     log.info('MongoDB init: database "'+conf.database+'" opened')
 
     // create collections
@@ -300,14 +301,14 @@ var files = {
 var servers = {
 
   _count: 0,
+  list: [],
 
   getCount: function() {
     return servers._count
-    log.info('count')
   },
 
   add: function() { log.info('add') },
-  all: function() { log.info('all') },
+  all: function() { return this.list },
 }
 
 var likes = function(text) {
