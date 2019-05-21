@@ -3,3 +3,4 @@ node_modules/
 tests/
 *.log
 udpkeys-*.dat
+dist/

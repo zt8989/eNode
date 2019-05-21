@@ -15,9 +15,12 @@
     "tinylogger": "^0.1.31",
     "typescript": "^3.4.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "ts-node": "^8.1.0"
+  },
   "scripts": {
-    "test": "mocha -R spec"
+    "test": "mocha -R spec",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
