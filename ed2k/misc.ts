@@ -34,6 +34,9 @@ export const BufferToBytesArray = function(buffer: Buffer){
   return Array.prototype.slice.call(buffer, 0)
 }
 
+export const IsValidIpv6 = function(str: string){
+  return ipaddr.isValid(str)
+}
 
 /**
  * Get file extension

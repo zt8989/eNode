@@ -232,10 +232,10 @@ var receive = {
     client.info.id = data.getUInt32LE()
     client.info.port = data.getUInt16LE()
     client.info.tags = data.getTags()
-    client.info.ipv6 = 0
+    client.info.ipv6 = null
     
     const ipv6 = client.info.tags.find(x => x[0] === 'ipv6')
-    if(ipv6 && ipv6[1]){
+    if(ipv6 && misc.IsValidIpv6(ipv6[1])){
       client.info.ipv6 = misc.IPv6StringToBuffer(ipv6[1])
       log.trace('ipv6: ' + misc.IPv6BufferToString(client.info.ipv6))
     } 
@@ -354,7 +354,8 @@ var send = {
       [TYPE_UINT8, OP_FOUNDSOURCES],
       [TYPE_HASH, fileHash],
     ]
-    const ipv4Source = sources.filter(x => !x.ipv6);
+    const ipv4Source = sources
+    // const ipv4Source = sources.filter(x => !x.ipv6);
     pack.push([TYPE_UINT8, ipv4Source.length])
     ipv4Source.forEach(function(src) {
       pack.push([TYPE_UINT32, src.id])
@@ -363,7 +364,7 @@ var send = {
     const ipv6Source = sources.filter(x => x.ipv6)
     pack.push([TYPE_UINT16, ipv6Source.length])
     ipv6Source.forEach(src => {
-      pack.push([TYPE_HASH, src.ipv6.buffer])
+      pack.push([TYPE_HASH, src.ipv6])
       pack.push([TYPE_UINT16, src.port])
     });
     submit(Packet.make(PR_ED2K, pack), client)

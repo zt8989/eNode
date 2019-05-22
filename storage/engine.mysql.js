@@ -326,10 +326,14 @@ var files = {
 
 var servers = {
 
-  count: 2,
+  count: 0,
 
   list: [
   ],
+
+  getCount(){
+    return this.count
+  },
 
   all: function() {
     return servers.list;
