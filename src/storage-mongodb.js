@@ -53,6 +53,7 @@ Storage.clients = {
 			hash: client.hash,
 			id: client.id,
 			port: client.port,
+			ipv6: client.ipv6,
 			time: client.time,
 			connected: true,
 		}
@@ -107,6 +108,7 @@ Storage.files = {
 		data.complete = !!file.complete;
 		data.time = util.isDate(file.time) ? file.time : new Date();
 		data._id = data.hash.toString('base64') + ':' + data.id.toString(36) + ':' + data.port.toString(36);
+		data.ipv6 = client.ipv6|''
 		log.trace(data._id);
 
 		if (file.type) data.type = file.type;
@@ -140,7 +142,6 @@ Storage.files = {
 			{ 	// query
 				hash: file.hash,
 				size: file.size,
-				sizeHi: file.sizeHi,
 				id: { $ne: client.id },
 				port: { $ne: client.port },
 			},

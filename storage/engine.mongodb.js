@@ -143,6 +143,7 @@ var clients = {
     var data = {
       'id_ed2k': clientInfo.id,
       'ipv4': clientInfo.ipv4,
+      'ipv6': clientInfo.ipv6,
       'port': clientInfo.port,
       'online': 1,
       'time_connected': misc.unixTimestamp(),
@@ -228,6 +229,7 @@ var files = {
    */
   addSource: function(file, clientInfo) {
     if (!file.type) file.type = misc.getFileType(file.name)
+    if(file.hash instanceof Buffer) file.hash = file.hash.toString('hex')
     var data = {
       hash: file.hash,
       size: file.size,
@@ -239,6 +241,7 @@ var files = {
       id_client: clientInfo.storageId,
       id: clientInfo.id,
       port: clientInfo.port,
+      ipv6: clientInfo.ipv6
     }
     var key = {
       hash: file.hash,
@@ -261,6 +264,7 @@ var files = {
   getSources: function(fileHash, fileSize, callback) {
     log.trace('MongoDB: client.getSources: '+
       fileHash.toString('hex')+' '+fileSize)
+    if(fileHash instanceof Buffer) fileHash = fileHash.toString('hex')
     var keys = {
       hash: fileHash,
       size: fileSize,
@@ -278,12 +282,12 @@ var files = {
       ],
       limit: 255,
     }
-    coll.files.find(keys, fields, options, function(err, data) {
-      data.toArray(function(err, sources) {
+    coll.files.find(keys)
+    .sort(options.sort).limit(options.limit)
+    .toArray(function(err, sources) {
         console.log(sources)
         callback(fileHash, sources)
-      })
-    })
+     })
   },
 
   getSourcesByHash: function(fileHash, callback) {

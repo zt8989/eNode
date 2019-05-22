@@ -1,4 +1,4 @@
-var net = require('net');
+var net = require('turbo-net');
 
 var count = 0;
 

@@ -4,4 +4,6 @@ export type FileType = {
   sizeLo?: number
   sizehi?: number
   size: number
+  name: string
+  type: string
 }

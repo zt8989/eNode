@@ -1,3 +1,5 @@
+type Tag = [string, number | string | Buffer | boolean];
+
 interface Buffer {
   _pointer: number
   pos(): number
@@ -16,8 +18,8 @@ interface Buffer {
   get(len?: number): any
   putTag(tag: any): any
   putTags(tags: any): any
-  getTag(): any
-  getTags(): any
+  getTag(): Tag | false
+  getTags(): Tag[]
   getFileList(callback: any): any
   getTagValue(type: any): any
 }

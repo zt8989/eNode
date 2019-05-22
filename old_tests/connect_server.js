@@ -1,5 +1,6 @@
-var net = require('net');
+var net = require('turbo-net');
 var log = require('tinylogger');
+var crypt = require('../ed2k/crypt');
 var misc = require('../ed2k/misc');
 var Packet = require('../ed2k/packet').Packet;
 var conf = require('../enode.config');
@@ -9,14 +10,14 @@ require('../ed2k/globals');
 var zlib = require('zlib');
 
 var connection = {
-    host: '91.225.136.126',
-    port: '1887',
+    host: '192.168.1.243',
+    port: 50001,
     //localAddress: '192.168.1.2',
-    localAddress: '192.168.43.61',
+    localAddress: '192.168.1.243',
 };
 
 var clientInfo = {
-    hash: misc.randBuf(16),
+    hash: crypt.randBuf(16),
     id: 0x12345678,
     port: 16666,
 }
@@ -73,6 +74,7 @@ var loginRequest = function() {
             [TYPE_UINT32, TAG_VERSION, 60],
             [TYPE_UINT32, TAG_FLAGS, 0], // 1817
             [TYPE_UINT32, TAG_MULEVERSION, 51200],
+            [TYPE_STRING, TAG_IPV6, misc.IPv6StringToBinaryString('2408:8340:2a02:419:d804:4170:50e4:6c39')],
         ]],
     ];
     client.write(Packet.make(PR_ED2K, pack), errorHandler);

@@ -1,9 +1,9 @@
-import { TYPE_STRING, TYPE_UINT8, TYPE_UINT16, TYPE_UINT32, TAG_NAME, TAG_SIZE, TAG_SIZE_HI, TAG_TYPE, TAG_FORMAT, TAG_VERSION, TAG_PORT, TAG_SOURCES, TAG_MULEVERSION, TAG_FLAGS, TAG_RATING, TAG_MEDIA_ARTIST, TAG_MEDIA_ALBUM, TAG_MEDIA_TITLE, TAG_MEDIA_LENGTH, TAG_MEDIA_BITRATE, TAG_MEDIA_CODEC, TAG_SEARCHTREE, TAG_EMULE_UDPPORTS, TAG_EMULE_OPTIONS1, TAG_EMULE_OPTIONS2, VAL_PARTIAL_ID, VAL_PARTIAL_PORT, VAL_COMPLETE_ID, VAL_COMPLETE_PORT } from "./op";
+import { TYPE_STRING, TYPE_UINT8, TYPE_UINT16, TYPE_UINT32, TAG_NAME, TAG_SIZE, TAG_SIZE_HI, TAG_TYPE, TAG_FORMAT, TAG_VERSION, TAG_PORT, TAG_SOURCES, TAG_MULEVERSION, TAG_FLAGS, TAG_RATING, TAG_MEDIA_ARTIST, TAG_MEDIA_ALBUM, TAG_MEDIA_TITLE, TAG_MEDIA_LENGTH, TAG_MEDIA_BITRATE, TAG_MEDIA_CODEC, TAG_SEARCHTREE, TAG_EMULE_UDPPORTS, TAG_EMULE_OPTIONS1, TAG_EMULE_OPTIONS2, VAL_PARTIAL_ID, VAL_PARTIAL_PORT, VAL_COMPLETE_ID, VAL_COMPLETE_PORT, TAG_IPV6, ED2K_Publishing } from "./op";
 import { FileType } from "./bean/File";
+import { TYPE_HASH } from "./op";
 
 var log = require('tinylogger')
 var conf = require('../enode.config')
-
 
 Buffer.prototype._pointer = 0
 
@@ -80,9 +80,11 @@ Buffer.prototype.putBuffer = function (buffer) {
   return this
 }
 
-Buffer.prototype.putHash = function (hash) {
+Buffer.prototype.putHash = function (hash: string | Buffer) {
   if ((hash instanceof Buffer) && (hash.length == 16)) {
     this.putBuffer(hash)
+  } else if(typeof hash === 'string' && (hash.length === 32)){
+    this.putBuffer(Buffer.from(hash, 'hex'))
   }
   else {
     log.error('putHash: Unsupported input. Type: ' + (typeof hash) + ' Length: ' + hash.length)
@@ -91,7 +93,7 @@ Buffer.prototype.putHash = function (hash) {
 }
 
 Buffer.prototype.get = function (len) {
-  if (len == 0) return
+  if (len == 0) return Buffer.alloc(0)
   if (len == undefined) {
     var r = this.slice(this._pointer, this.length)
     this._pointer = this.length
@@ -149,6 +151,9 @@ Buffer.prototype.putTag = function (tag) {
       break
     case TYPE_UINT32:
       this.putUInt32LE(tag[2])
+      break
+    case TYPE_HASH:
+      this.putHash(tag[2])
       break
     default: log.error('Buffer.putTag: Unhandled tag type: 0x' + tag[0].toString(16))
   }
@@ -273,8 +278,20 @@ Buffer.prototype.getTag = function () {
     case TAG_EMULE_OPTIONS2:
       tag = ['options2', this.getTagValue(type)]
       break
+    case TAG_IPV6:
+      tag = ['ipv6', this.getTagValue(type)]
+      break
+    case ED2K_Publishing.CT_FILENAME:
+      tag = ['filename', this.getTagValue(type)]
+      break
+    case ED2K_Publishing.CT_FILESIZE:
+      tag = ['filesize', this.getTagValue(type)]
+      break
+    case ED2K_Publishing.CT_FILETYPE:
+      tag = ['filetype', this.getTagValue(type)]
+      break
     default:
-      tag = ['0x' + code.toString(16), this.getTagValue(type)]
+      tag = [code, this.getTagValue(type)]
   }
   return tag
 }
@@ -294,22 +311,35 @@ Buffer.prototype.getFileList = function (callback) {
   //log.debug('Buffer.getFileList')
   var count = this.getUInt32LE()
   for (var i = 0; i < count; i++) {
-    var file: FileType = {
+    var file: Partial<FileType> = {
       'hash': this.get(16),
       'complete': 1, // let's suppose it's completed by default
-      size: 0
+      size: 0,
     }
     var id = this.getUInt32LE()
     var port = this.getUInt16LE()
-    this.getTags()
+    const tags = this.getTags()
+    let name: any
+    if(name = tags.find(x => x[0] === 'name')) {
+      file.name = name[1]
+    }
+    let size: any
+    if(size = tags.find(x => x[0] === 'size')) {
+      file.size = size[1]
+    }
+    let type: any
+    if(type = tags.find(x => x[0] === 'type')) {
+      file.type = type[1]
+    }
     if ((id == VAL_PARTIAL_ID) && (port == VAL_PARTIAL_PORT)) {
       file.complete = 0
     }
     else if ((id == VAL_COMPLETE_ID) && (port == VAL_COMPLETE_PORT)) {
       file.complete = 1
     }
+
     file.sizeLo = file.size
-    if (file.sizehi) {
+    if (file.sizehi && file.size) {
       file.size += file.sizehi * 0x100000000
     }
     else file.sizehi = 0

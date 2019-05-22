@@ -1,7 +1,7 @@
 require('./ed2k-globals');
 
 var config = require('../enode.config'),
-	net = require('net'),
+	net = require('turbo-net'),
 	log = require('tinylogger'),
 	Ed2kMessage = require('./ed2k-message'),
 	Ed2kTcpStream = require('./ed2k-tcp-stream'),

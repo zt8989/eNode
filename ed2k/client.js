@@ -1,4 +1,4 @@
-var net = require('net')
+var net = require('turbo-net')
 var conf = require('../enode.config')
 var Packet = require('./packet').Packet
 var misc = require('./misc')
@@ -194,7 +194,7 @@ var readOpHelloAnswer = function(data) {
   info.serverAddress = data.getUInt32LE()
   info.serverPort = data.getUInt16LE()
   if (data.pos() < data.length) {
-    log.warn('readOpHelloAnswer excess: '+log.get().toString('hex'))
+    log.warn('readOpHelloAnswer excess: '+ data.get().toString('hex'))
   }
   return info
 }
