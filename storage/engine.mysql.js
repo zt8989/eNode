@@ -150,7 +150,7 @@ clients = {
             callback(false, rows.insertId);
         });
       } else {
-        sql.query('UPDATE clients SET online = 1 WHERE id = ?', [result.id],
+        sql.query('UPDATE clients SET ? WHERE id = ?', [v, result.id],
         function(err, res){
           callback(false, result.id);
         });
