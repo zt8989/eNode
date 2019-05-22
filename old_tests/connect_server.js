@@ -1,4 +1,4 @@
-var net = require('turbo-net');
+var net = require('net');
 var log = require('tinylogger');
 var crypt = require('../ed2k/crypt');
 var misc = require('../ed2k/misc');

@@ -236,7 +236,7 @@ var files = {
       online: 1,
       complete: file.complete,
       name: file.name,
-      ext: misc.ext(file.name),
+      ext: misc.getExt(file.name),
       time_offer: misc.unixTimestamp(),
       id_client: clientInfo.storageId,
       id: clientInfo.id,

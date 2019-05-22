@@ -1,4 +1,4 @@
-var net = require('turbo-net')
+var net = require('net')
 var conf = require('../enode.config')
 var Packet = require('./packet').Packet
 var misc = require('./misc')

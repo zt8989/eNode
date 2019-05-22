@@ -5,7 +5,7 @@ var conf = require('../enode.config').storage.mysql
 
 var sql = {
 
-  connections: [],
+  connection: null,
   current: 0,
   connectionsCount: 0,
 
@@ -21,11 +21,11 @@ var sql = {
     return false;
   },
 
-  esc: function(value) { return sql.connections[sql.current].escape(value); },
+  esc: function(value) { return sql.connection.escape(value); },
 
   query: function(str, values, callback) {
     if (callback == undefined) { callback = sql.defErr; }
-    var q = sql.connections[sql.current].query(str, values, function(err, rows) {
+    var q = sql.connection.query(str, values, function(err, rows) {
       if (err && err.code == 'ER_LOCK_DEADLOCK') {
         log.warn('Deadlock detected. Query: '+str);
         setTimeout(function() {
@@ -36,9 +36,8 @@ var sql = {
       callback(err, rows);
     });
     if (conf.log) {
-      log.sql('['+sql.current+'] '+(conf.fullLog ? q.sql : q.sql.substring(0,80)));
+      log.sql((conf.fullLog ? q.sql : q.sql.substring(0,80)));
     }
-    sql.current = (sql.current+1) % sql.connectionsCount; // round robin
   },
 
   setErrorListener: function(sqlConnection) {
@@ -59,36 +58,36 @@ var sql = {
 }
 
 exports.init = function(callback) {
-  for (var i=0; i<conf.connections; i++) {
-    sql.connections[i] = mysql.createConnection({
+    sql.connection = mysql.createPool({
       host: conf.host,
       user: conf.user,
       password: conf.pass,
       database: conf.database,
       supportBigNumbers: true,
-    });
-    sql.connections[i].connect(function(err){
-      sql.connectionsCount++;
+      connectionLimit: conf.connections
+    })
+    log.ok('Connected to MySQL server');
+    sql.query('UPDATE clients SET online = 0', function(err){
       if (err) { return sql.defErr(err); }
-      if (sql.connectionsCount == conf.connections) { // last connection?
-        log.ok('Connected to MySQL server ('+conf.connections+' connections): '+conf.user+'@'+conf.host+'/'+conf.database);
-        sql.query('UPDATE clients SET online = 0', function(err){
-          if (err) { return sql.defErr(err); }
-          sql.query('UPDATE sources SET online = 0', function(err){
-            if (err) { return sql.defErr(err); }
-            files.updateCount();
-            callback();
-          });
-        });
-      }
-    });
-    sql.setErrorListener(sql.connections[i]);
-  }
+      sql.query('UPDATE sources SET online = 0', function(err){
+        if (err) { return sql.defErr(err); }
+        setInterval(() => {
+          files.updateCount();
+          clients.updateCount();
+        }, 5000 * 60);
+        callback();
+      });
+    })
+    sql.setErrorListener(sql.connection);
 };
 
 clients = {
 
   count: 0,
+
+  getCount(){
+    return this.count
+  },
 
   /**
    * @param {Object} clientInfo Client connection information
@@ -110,6 +109,21 @@ clients = {
     });
   },
 
+  updateCount: function() {
+    sql.query('SELECT COUNT(*) AS c FROM clients WHERE online = 1', function(err, row){ //  WHERE complete = 1 ?
+      clients.count = row[0]['c'];
+      log.trace('Clients count: '+files.count);
+    });
+  },
+
+  get: function(hash, callback) {
+    sql.query('SELECT * FROM clients WHERE hash = ? LIMIT 1', [hash], function(err, users){
+      if (err) { return sql.defErr(err) }
+      if (users.length > 0) { callback(users[0]); }
+      else { callback(false); }
+    });
+  },
+
   /**
    * @param {Object} clientInfo Client connection information
    * @param {Buffer} clientInfo.hash
@@ -123,23 +137,25 @@ clients = {
       hash: clientInfo.hash,
       id_ed2k: clientInfo.id,
       ipv4: clientInfo.ipv4,
+      ipv6: clientInfo.ipv6,
       port: clientInfo.port,
       online: 1,
     };
-    sql.query('INSERT INTO clients SET ? ON DUPLICATE KEY UPDATE ? ', [v,v],
-      function(err){
-      if (err) { callback(err); return; }
-      sql.query('SELECT id FROM clients WHERE hash = ? LIMIT 1', [clientInfo.hash], function(err, rows){
+    
 
-        if (err) { callback(err); return; }
-        if (rows.length < 1) {
-          callback('MySQL clients.connect: Error inserting client');
-          return;
-        }
-        clients.count++;
-        callback(false, rows[0].id);
-      });
-    });
+    clients.get(v.hash, function(result) {
+      if(result === false){
+        sql.query('INSERT INTO clients SET ?', [v,v],
+        function(err, res){
+            callback(false, rows.insertId);
+        });
+      } else {
+        sql.query('UPDATE clients SET online = 1 WHERE id = ?', [result.id],
+        function(err, res){
+          callback(false, result.id);
+        });
+      }
+    })
   },
 
   /**
@@ -153,9 +169,7 @@ clients = {
       clientInfo.logged = false;
       log.info('client.disconnect: '+(clientInfo.storageId));
       sql.query('UPDATE clients SET online = 0 WHERE id = ?', [clientInfo.storageId]);
-      sql.query('UPDATE sources SET online = 0 WHERE id_client = ?', [clientInfo.storageId]);
       log.todo('client.disconnect: Update client\'s files values for sources and completed ??');
-      clients.count--;
     }
   },
 
@@ -172,43 +186,47 @@ var files = {
 
   count: 0,
 
+  getCount(){
+    return this.count
+  },
+
   get: function(fileHash, fileSize, callback) {
-    sql.query('SELECT id FROM files WHERE hash = ? AND size = ? LIMIT 1', [fileHash, fileSize], function(err, files){
+    sql.query('SELECT * FROM files WHERE hash = ? AND size = ? LIMIT 1', [fileHash, fileSize], function(err, files){
       if (err) { return sql.defErr(err) }
-      if (files.length > 0) { callback(files[0].id); }
+      if (files.length > 0) { callback(files[0]); }
       else { callback(false); }
     });
   },
 
   getByHash: function(fileHash, callback) {
-    sql.query('SELECT id FROM files WHERE hash = ? LIMIT 1', [fileHash], function(err, files){
+    sql.query('SELECT * FROM files WHERE hash = ? LIMIT 1', [fileHash], function(err, files){
       if (err) { return sql.defErr(err) }
       if (files.length > 0) { callback(files[0].id); }
       else { callback(false); }
     });
   },
 
-  add: function(file, clientInfo) {
-    sql.current = clientInfo.id % sql.connectionsCount;
-    sql.query('INSERT INTO files SET time_offer=NOW(), ? ON DUPLICATE KEY UPDATE time_offer=NOW()', {hash: file.hash, size: file.size}, function(err){
-      if (err) { return sql.defErr(err); }
-      sql.current = clientInfo.id % sql.connectionsCount;
-      files.get(file.hash, file.size, function(fileId) {
-        if (fileId == false) {
-          log.error('files.add: File not found after insert: '+file.hash.toString('hex'));
-          return;
-        }
-        file.id = fileId;
-        files.addSource(file, clientInfo);
-      });
-    });
+  add(file, clientInfo) {
+    this.get(file.hash, file.size, function(theFile){
+      if(theFile === false){
+        sql.query('INSERT INTO files SET time_offer=NOW(), ?', {hash: file.hash, size: file.size}, function(err, results){
+          if (err) { return sql.defErr(err); }
+          files.addSource({ ...file, id: results.insertId }, clientInfo);
+        });
+      } else {
+        sql.query('UPDATE files SET time_offer=NOW() WHERE hash = ? and size = ?', [file.hash, file.size], function(err){
+          if (err) { return sql.defErr(err); }
+          files.addSource({ ...file, id: theFile.id }, clientInfo);
+        });
+      }
+    })
   },
 
   addSource: function(file, clientInfo) {
     if (!file.type) { file.type = misc.getFileType(file.name); }
     var v = {
-      id_file: file.id, id_client: clientInfo.storageId, online: 1,
-      complete: file.complete, name: file.name, ext: misc.ext(file.name),
+      file_hash: file.hash, user_hash: clientInfo.hash, online: 1,
+      complete: file.complete, name: file.name, ext: misc.getExt(file.name),
     };
     if (file.codec) v.codec = file.codec;
     if (file.type) v.type = file.type;
@@ -218,33 +236,37 @@ var files = {
     if (file.album) v.album = file.album;
     if (file.bitrate) v.bitrate = file.bitrate;
     if (file.length) v.length = file.length;
-    sql.current = clientInfo.id % sql.connectionsCount;
-    sql.query('INSERT INTO sources SET ?, time_offer = NOW() ON DUPLICATE KEY UPDATE ?, time_offer = NOW()', [v,v], function(err){
-      if (err) { return sql.defErr(err, 'files.addSource (insert)'); }
-      sql.current = clientInfo.id % sql.connectionsCount;
-      sql.query('UPDATE files AS f '+
-        'LEFT JOIN (SELECT id_file, SUM(complete) AS c, COUNT(*) AS s FROM sources GROUP BY id_file) AS c ON f.id = c.id_file '+
-        'SET f.completed = c.c, f.sources = c.s, source_id = ?, source_port = ?', [clientInfo.id, clientInfo.port], function(err){
-        if (err) { return sql.defErr(err, 'files.addSource (update)'); }
-      });
+    this.getSource(file.hash, clientInfo.hash, function(result){
+      function callback(err){
+        if (err) { return sql.defErr(err, 'files.addSource (insert)'); }
+      }
+      if(result === false){
+        sql.query('INSERT INTO sources SET ?, time_offer = NOW()', [v], callback)
+      } else {
+        sql.query('UPDATE sources SET ?, time_offer = NOW() WHERE id = ?', [v, result.id], callback)
+      }
+    })
+  },
+
+  getSource: function(fileHash, userHash, callback) {
+    sql.query('SELECT * FROM sources WHERE file_hash = ? and user_hash = ? LIMIT 1', [fileHash, userHash], function(err, files){
+      if (err) { return sql.defErr(err) }
+      if (files.length > 0) { callback(files[0]); }
+      else { callback(false); }
     });
   },
 
-  getSources: function(fileHash, fileSize, callback) {
-    files.get(fileHash, fileSize, function(fileId){
-      if (fileId != false) {
-        var q = 'SELECT c.id_ed2k AS id, c.port '+
-          'FROM sources AS s '+
-          'INNER JOIN clients AS c ON c.id = s.id_client '+
-          'WHERE s.id_file = ? '+
-          'ORDER BY s.online DESC, s.time_offer DESC '+
-          'LIMIT 255';
-        sql.query(q, [fileId], function(err, sources){
-          if (err) { return sql.defErr(err); }
-          callback(fileHash, sources);
-        });
-      }
-      else { callback(fileHash, []); }
+  getSources: function(fileHash, callback) {
+    // TODO: 下线的客户端是否要返回？
+    const q = 'SELECT c.id_ed2k AS id,c.ipv6 as ipv6, c.port '+
+    'FROM sources AS s '+
+    'INNER JOIN clients AS c ON c.hash = s.user_hash '+
+    'WHERE s.file_hash = ? and c.online = 1 '+
+    'ORDER BY s.online DESC, s.time_offer DESC '+
+    'LIMIT 255'
+    sql.query(q, [fileHash], function(err, files){
+      if (err) { return sql.defErr(err) }
+      callback(files)
     });
   },
 
@@ -307,8 +329,6 @@ var servers = {
   count: 2,
 
   list: [
-    { ip: '111.222.111.222', port: 1234 },
-    { ip: '123.123.234.234', port: 2345 },
   ],
 
   all: function() {

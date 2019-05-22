@@ -3,7 +3,7 @@ import { OP_HELLO, PS_NEW, PS_WAITING_DATA, PS_CRYPT_NEGOTIATING, PS_READY, PR_E
 var conf = require('../enode.config')
 var log = require('tinylogger')
 var db = require('../storage/storage')
-var net = require('turbo-net')
+var net = require('net')
 var lowIdClients = require('./lowidclients').lowIdClients
 var Packet = require('./packet').Packet
 var zlib = require('zlib')
@@ -232,12 +232,13 @@ var receive = {
     client.info.id = data.getUInt32LE()
     client.info.port = data.getUInt16LE()
     client.info.tags = data.getTags()
+    client.info.ipv6 = 0
     
     const ipv6 = client.info.tags.find(x => x[0] === 'ipv6')
     if(ipv6 && ipv6[1]){
       client.info.ipv6 = misc.IPv6StringToBuffer(ipv6[1])
       log.trace('ipv6: ' + misc.IPv6BufferToString(client.info.ipv6))
-    }
+    } 
     db.clients.isConnected(client.info, function(err, connected) {
       if (err) {
         log.error('loginRequest: '+err)
@@ -274,8 +275,8 @@ var receive = {
   offerFiles: function(client) {
     log.debug('OFFERFILES < '+client.info.storageId)
     var count = client.packet.data.getFileList(function(file) {
-      //log.trace(file.name+' '+file.size+' '+file.hash.toString('hex'))
-      db.files.addSource(file, client.info)
+      log.trace(file.name+' '+file.size+' '+file.hash.toString('hex'))
+        db.files.add(file, client.info)
     })
     log.trace('Got '+count+' files from '+client.remoteAddress+
       ' Total files: '+db.files.getCount())
@@ -298,9 +299,9 @@ var receive = {
       file.size = client.packet.data.getUInt32LE()
       file.size+= client.packet.data.getUInt32LE() * 0x100000000
     }
-    db.files.getSources(file.hash, file.size, function(fileHash, sources) {
-      log.trace('Got '+sources.length+' sources for file: '+fileHash.toString('hex'))
-      send.foundSources(fileHash, sources, client)
+    db.files.getSources(file.hash, function(sources) {
+      log.trace('Got '+sources.length+' sources for file: '+file.hash.toString('hex'))
+      send.foundSources(file.hash, sources, client)
     })
   },
 

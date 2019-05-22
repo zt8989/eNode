@@ -1,4 +1,4 @@
-var net = require('turbo-net')
+var net = require('net')
 var log = require('tinylogger')
 var db = require('../storage/storage')
 var misc = require('./misc')
@@ -65,7 +65,7 @@ exports.run = function(enableCrypt, port, callback) {
     }
   })
 
-  server.listen(port, function() {
+  server.listen(port, conf.address, function() {
     server.maxConnections = conf.tcp.maxConnections
     log.ok('Listening to TCP: '+port+' (Max connections: '+
       server.maxConnections+')')

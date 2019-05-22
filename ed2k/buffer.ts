@@ -80,14 +80,16 @@ Buffer.prototype.putBuffer = function (buffer) {
   return this
 }
 
-Buffer.prototype.putHash = function (hash: string | Buffer) {
+Buffer.prototype.putHash = function (hash: string | Buffer | ArrayBuffer) {
   if ((hash instanceof Buffer) && (hash.length == 16)) {
     this.putBuffer(hash)
   } else if(typeof hash === 'string' && (hash.length === 32)){
     this.putBuffer(Buffer.from(hash, 'hex'))
+  } else if(hash instanceof ArrayBuffer){
+    this.putBuffer(Buffer.from(hash))
   }
   else {
-    log.error('putHash: Unsupported input. Type: ' + (typeof hash) + ' Length: ' + hash.length)
+    log.error('putHash: Unsupported input. Type: ' + (typeof hash) )
   }
   return this
 }
@@ -314,7 +316,6 @@ Buffer.prototype.getFileList = function (callback) {
     var file: Partial<FileType> = {
       'hash': this.get(16),
       'complete': 1, // let's suppose it's completed by default
-      size: 0,
     }
     var id = this.getUInt32LE()
     var port = this.getUInt16LE()
@@ -325,11 +326,15 @@ Buffer.prototype.getFileList = function (callback) {
     }
     let size: any
     if(size = tags.find(x => x[0] === 'size')) {
-      file.size = size[1]
+      file.size = BigInt(size[1])
     }
     let type: any
     if(type = tags.find(x => x[0] === 'type')) {
       file.type = type[1]
+    }
+    let sizehi: any
+    if(sizehi = tags.find(x => x[0] === 'sizehi')) {
+      file.sizehi = sizehi[1]
     }
     if ((id == VAL_PARTIAL_ID) && (port == VAL_PARTIAL_PORT)) {
       file.complete = 0
@@ -337,10 +342,8 @@ Buffer.prototype.getFileList = function (callback) {
     else if ((id == VAL_COMPLETE_ID) && (port == VAL_COMPLETE_PORT)) {
       file.complete = 1
     }
-
-    file.sizeLo = file.size
     if (file.sizehi && file.size) {
-      file.size += file.sizehi * 0x100000000
+      file.size += BigInt(file.sizehi) * BigInt(0x100000000)
     }
     else file.sizehi = 0
     if (callback) callback(file)

@@ -41,7 +41,7 @@ export const BufferToBytesArray = function(buffer: Buffer){
  * @param {String} name Filename
  * @returns {String} Extension (without the dot)
  */
-export const ext = function(name) {
+export const getExt = function(name) {
   if (!name) return ''
   return name.substring(name.lastIndexOf('.')+1, name.length).toLowerCase()
 }
@@ -85,7 +85,7 @@ export const getFileType = function(name) {
       'cif,ccd,sub,raw'.split(','),
   }
   if (typeof name !== 'string') { return '' }
-  var ext = ext(name)
+  var ext = getExt(name)
   if (extensions.video.indexOf(ext)>=0) return 'Video'
   if (extensions.audio.indexOf(ext)>=0) return 'Audio'
   if (extensions.image.indexOf(ext)>=0) return 'Image'

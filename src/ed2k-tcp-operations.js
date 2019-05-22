@@ -82,7 +82,7 @@ operations[OP.LOGIN_REQUEST] = function (client, message, callback) {
 			var response = new Ed2kMessage();
 			if (!isConnected) {
 				Storage.clients.connect(client, function (err, result) {
-					if (!err && (result == 1)) {
+					if (!err) {
 						client.status = CS.CONNECTED;
 						log.trace('+ Login request: ' + JSON.stringify(client));
 						response.writeMessage(responses[OP.SERVER_MESSAGE]('server version ' + config.versionString + ' (eNode)'));

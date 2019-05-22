@@ -1,9 +1,9 @@
 export type FileType = {
   hash: string
   complete: number
-  sizeLo?: number
+  sizelo?: number
   sizehi?: number
-  size: number
+  size: bigint
   name: string
   type: string
 }
