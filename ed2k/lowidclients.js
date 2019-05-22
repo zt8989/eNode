@@ -36,7 +36,7 @@ var lowIdClients = {
 
   get: function(id) {
     if (lowIdClients._clients.hasOwnProperty(id)) {
-      return lowIdClients.clients[id];
+      return lowIdClients._clients[id];
     }
     else {
       return false;
