@@ -96,17 +96,17 @@ clients = {
    * @returns undefined
    **/
   isConnected: function(clientInfo, callback) {
-    sql.query('SELECT id FROM clients WHERE hash = ? AND online = 1 LIMIT 1', [clientInfo.hash], function(err, rows){
-      if (err) {
-        callback(err);
-        return;
-      }
-      if (rows.length > 0) {
-        callback(false, true);
-        return;
-      }
+    // sql.query('SELECT id FROM clients WHERE hash = ? AND online = 1 LIMIT 1', [clientInfo.hash], function(err, rows){
+    //   if (err) {
+    //     callback(err);
+    //     return;
+    //   }
+    //   if (rows.length > 0) {
+    //     callback(false, true);
+    //     return;
+    //   }
       callback(false, false);
-    });
+    // });
   },
 
   updateCount: function() {
