@@ -146,7 +146,7 @@ clients = {
     clients.get(v.hash, function(result) {
       if(result === false){
         sql.query('INSERT INTO clients SET ?', [v,v],
-        function(err, res){
+        function(err, rows){
             callback(false, rows.insertId);
         });
       } else {
