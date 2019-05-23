@@ -82,15 +82,17 @@ Packet.makeUDP = function(protocol, items) {
 };
 
 Packet.addFile = function(packet, file) {
+  const size = BigInt(file.size)
+  const mod = BigInt(0x100000000)
   var tags = [
     [TYPE_STRING, TAG_NAME, file.name],
-    [TYPE_UINT32, TAG_SIZE, file.size % 0x100000000],
+    [TYPE_UINT32, TAG_SIZE, Number(size % mod)],
     [TYPE_STRING, TAG_TYPE, file.type],
     [TYPE_UINT32, TAG_SOURCES, file.sources],
     [TYPE_UINT32, TAG_COMPLETE_SOURCES, file.completed],
   ];
-  if (file.size >= 0x100000000) tags.push(
-    [TYPE_UINT32, TAG_SIZE_HI, Math.floor(file.size/0x100000000)]);
+  if (size >= mod) tags.push(
+    [TYPE_UINT32, TAG_SIZE_HI, Number(size/mod)]);
   if (file.title != '') tags.push([TYPE_STRING, TAG_MEDIA_TITLE, file.title]);
   if (file.artist != '') tags.push([TYPE_STRING, TAG_MEDIA_ARTIST, file.artist]);
   if (file.album != '') tags.push([TYPE_STRING, TAG_MEDIA_ALBUM, file.album]);

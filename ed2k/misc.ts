@@ -46,7 +46,11 @@ export const IsValidIpv6 = function(str: string){
  */
 export const getExt = function(name: string) {
   if (!name || name.indexOf('.') === -1) return ''
-  return name.substring(name.lastIndexOf('.')+1, name.length).toLowerCase()
+  const ext = name.substring(name.lastIndexOf('.')+1, name.length).toLowerCase()
+  if(ext.length > 8){
+    return ''
+  }
+  return ext
 }
 
 export const hex = function(n, len) {

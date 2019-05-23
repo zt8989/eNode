@@ -302,13 +302,12 @@ var files = {
       var where = data.getSearchString();
       var t = Math.floor(Math.random()*1000000);
       var t = new Date().getTime();
-      var q = "SELECT s.name, f.completed, f.sources, f.hash, f.size, f.source_id, f.source_port, "+
+      var q = "SELECT s.name, f.hash,f.size, sum(complete) completed,count(*) sources, 0 source_id, 0 source_port, "+
         "s.type, s.title, s.artist, s.album, s.length AS runtime, s.bitrate, s.codec "+
         "FROM sources AS s "+
-        "INNER JOIN files AS f ON s.id_file = f.id "+
-        "INNER JOIN clients AS c ON s.id_client = c.id "+
+        "INNER JOIN files AS f ON s.file_hash = f.hash "+
         "WHERE "+where+" "+
-        "GROUP BY s.id_file "+
+        "GROUP BY s.file_hash "+
         "LIMIT 255";
       sql.query(q, function(err, sources){
         log.sql('Time: '+((new Date().getTime()-t) / 1000)+'s');
