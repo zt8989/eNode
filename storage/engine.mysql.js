@@ -64,7 +64,8 @@ exports.init = function(callback) {
       password: conf.pass,
       database: conf.database,
       supportBigNumbers: true,
-      connectionLimit: conf.connections
+      connectionLimit: conf.connections,
+      timezone: conf.timezone ? conf.timezone : 'Asia/Shanghai'
     })
     log.ok('Connected to MySQL server');
     sql.query('UPDATE clients SET online = 0', function(err){
@@ -344,7 +345,7 @@ var likes = function(text) {
   var r = [];
   text.split(' ').forEach(function(v){
     if (v != ' ') {
-      r.push("s.name LIKE "+sql.esc('%'+v+'%'));
+      r.push("s.name LIKE BINARY "+sql.esc('%'+v+'%'));
     }
   });
   return r.join(' AND ');
