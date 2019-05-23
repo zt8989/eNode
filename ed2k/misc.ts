@@ -44,8 +44,8 @@ export const IsValidIpv6 = function(str: string){
  * @param {String} name Filename
  * @returns {String} Extension (without the dot)
  */
-export const getExt = function(name) {
-  if (!name) return ''
+export const getExt = function(name: string) {
+  if (!name || name.indexOf('.') === -1) return ''
   return name.substring(name.lastIndexOf('.')+1, name.length).toLowerCase()
 }
 
