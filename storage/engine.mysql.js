@@ -342,13 +342,14 @@ var servers = {
 };
 
 var likes = function(text) {
-  var r = [];
-  text.split(' ').forEach(function(v){
-    if (v != ' ') {
-      r.push("s.name LIKE BINARY "+sql.esc('%'+v+'%'));
-    }
-  });
-  return r.join(' AND ');
+  // var r = [];
+  // text.split(' ').forEach(function(v){
+  //   if (v != ' ') {
+  //     r.push("s.name LIKE BINARY "+sql.esc('%'+v+'%'));
+  //   }
+  // });
+  // return r.join(' AND ');
+  return `match(name) against(${sql.esc(text)})`
 }
 
 var searchExpr = function(token, type, value) {
